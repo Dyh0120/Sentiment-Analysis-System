@@ -8,13 +8,19 @@
             <div>
               <el-icon :size="24"><UserFilled /></el-icon>
             </div>
-            <input type="text" placeholder="学号" v-model="uname" />
+            <input type="text" placeholder="学号/工号/账号" v-model="uname" />
           </div>
           <div class="password">
             <div>
               <el-icon :size="24"><Lock /></el-icon>
             </div>
             <input type="password" placeholder="密码" v-model="password" />
+          </div>
+          <div class="identify">
+            <input type="text" placeholder="验证码" v-model="cap">
+            <span>
+                <img :src="imageSrc" alt="Received Image" height="75%" @click="changecap"/>
+            </span>
           </div>
           <div class="btn"><button class="log" @click.prevent="log">登录</button></div>
         </div>
@@ -49,6 +55,29 @@ import { ElForm, ElFormItem, ElInput, ElButton, ElCheckbox, ElMessage } from 'el
 import { useRouter } from 'vue-router'
 import { UserFilled,Lock } from '@element-plus/icons-vue'
 import isLogin from '@/api/isLogin'
+// 验证码
+const uuid=ref()
+const imageSrc = ref(null);
+let cap=ref()
+    const fetchImage = async () => {
+      try {
+        const response = await fetch('http://mxt.nat300.top/cap/');
+        uuid.value=response.headers.get('uuid')
+        // console.log(response.headers.get('uuid'));
+        // console.log(response.headers.get('content-type'));
+
+        const blob = await response.blob();
+        // 将 Blob 转换为 Data URL
+       const dataUrl = URL.createObjectURL(blob);
+        // 设置图片的 src 属性
+        imageSrc.value = dataUrl;
+      } catch (error) {
+        console.error('Error fetching image:', error);
+      }
+    };
+const changecap=()=>{
+  fetchImage()
+}
 let container="container container1"
 const router = useRouter()
 // 表单数据和状态
@@ -93,6 +122,7 @@ const isPC = () => {
 
 onMounted(
 async() => {
+  fetchImage()
    isPC()
    if(isPc===false)
       container="container container2"
@@ -130,6 +160,8 @@ const log = async () => {
     const response = await axios.post('http://mxt.nat300.top/user/login/', {
       username: uname.value,
       password: password.value,
+      uuid:uuid.value,
+      answer:cap.value
     }, config)
 console.log(response.data);
 
@@ -231,7 +263,7 @@ input[type='text']:focus {
 }
 .container .pc {
   width: 430px;
-  height: 400px;
+  height: 460px;
   backdrop-filter: blur(80px);
   background-color: #fff;
   border-radius: 5px;
@@ -246,7 +278,6 @@ input[type='text']:focus {
   font-size: 24px;
   text-align: center;
   letter-spacing: 0.05em;
-  padding-bottom: 15px;
 }
 .container .pc .form_left h3 {
   font-size: 20px;
@@ -256,30 +287,35 @@ input[type='text']:focus {
 }
 
 .container .uname,
-.password {
+.password,.identify {
   background-color: #f5f5f5;
   width: 70%;
-  height: 14%;
+  height: 12%;
   margin: 5% auto;
   padding: 0;
   border-radius: 5px;
+  vertical-align: middle;
 }
-.remenber {
-  width: 70%;
-  height: 2%;
-  margin: 0 auto;
-}
+
 .el-checkbox.el-checkbox--large {
   height: 24px;
 }
 .container .pc .form_left .uname input,
-.password input {
+.password input{
   margin-left: 4px;
   font-size: 16px;
   width: 80%;
   border: none;
   outline: none;
   background-color: #f5f5f5;
+}
+.identify input{
+  font-size: 16px;
+  width: 53%;
+  border: none;
+  outline: none;
+  background-color: #f5f5f5;
+  margin: 5.5%;
 }
 input:focus {
   background-color: #f5f5f5 !important;
@@ -293,7 +329,7 @@ input:focus {
   margin: auto;
   width: 70%;
   height: 12%;
-  margin: 11% auto;
+  margin: 8% auto;
 }
 .log {
   width: 100%;
