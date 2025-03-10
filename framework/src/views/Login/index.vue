@@ -124,23 +124,7 @@ onMounted(
 async() => {
   fetchImage()
    isPC()
-   if(isPc===false)
-      container="container container2"
-   else
-      container="container container1"
- const isLoggedin=await isLogin();
-  if(!isLoggedin)
-  {
-    localStorage.removeItem('role')
-    localStorage.removeItem('token')
-  }
 
-
-  if(redirect&&token&&role)
-    {
-      console.log('redirect', redirect)
-       window.location.href = `${redirect}?token=${token}&role=${role}`
-    }
 })
 
 
@@ -169,6 +153,7 @@ console.log(response.data);
     if (response.data.code == 0) {
       ElMessage.success('登录成功')
       localStorage.setItem('token', response.data.data.token)
+       router.push('/System')
       // console.log('response.data是', response.data.data.roles[0].roleName)
       //判断是否有回调参数
       localStorage.setItem('role', response.data.data.role)
@@ -340,7 +325,7 @@ input:focus {
   letter-spacing: 0.05em;
   outline: none;
   border: none;
-  font-size: 16px;
+  font-size: 17px;
 }
 .uname div,
 .password div {
